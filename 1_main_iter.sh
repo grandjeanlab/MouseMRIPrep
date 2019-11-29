@@ -48,7 +48,7 @@ ftop=0.25
 if [ "make_template"==true ]; then
 mkdir -p $bids_template'/data'
 mkdir -p $bids_template'/script'
-cp $script_dir'/anat_template.sh'
+cp $script_dir'/anat_template.sh' $bids_template'/script/anat_template.sh'
 chmod +x $bids_template'/script/anat_template.sh'
 fi
 
