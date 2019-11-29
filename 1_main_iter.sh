@@ -1,23 +1,24 @@
-bids_original='/project/4180000.15/opto_ins/bids'
-bids_preprocessing='/project/4180000.15/opto_ins/preprocessing'
-
+bids_base='/project/4180000.18/Rest_AD1'
+bids_original=$bids_base'/bids'
+bids_preprocessing=$bids_base'/preprocessing'
+script_dir=$bids_base'/script/MouseMRIPrep/prep'
+bids_template=$bids_base'/anat_template'
 
 template='/home/traaffneu/joagra/my_templates/MRI_exvivo_template_200um.nii'
 template_brain='/home/traaffneu/joagra/my_templates/MRI_exvivo_template_200um_skullstripped.nii'
 template_mask='/home/traaffneu/joagra/my_templates/mask_200um.nii'
 template_atlas='/home/traaffneu/joagra/my_templates/atlas/ABI_atlas_reduced_200um.nii.gz'
-standard='/project/4180000.15/anat_template/template.nii.gz'
-standard_mask='/project/4180000.15/anat_template/template_mask.nii.gz'
-standard2ABIlin='/project/4180000.15/anat_template/transform/std2abi0GenericAffine.mat'
-standard2ABInlin='/project/4180000.15/anat_template/transform/std2abi0Warp.nii.gz'
-standard2ABInlin_inv='/project/4180000.15/anat_template/transform/std2abi0InverseWarp.nii.gz'
-
-script_dir='/home/traaffneu/joagra/script'
+standard=$bids_template'/template.nii.gz'
+standard_mask=$bids_template'/template_mask.nii.gz'
+standard2ABIlin=$bids_template'/transform/std2abi0GenericAffine.mat'
+standard2ABInlin=$bids_template'/transform/std2abi0Warp.nii.gz'
+standard2ABInlin_inv=$bids_template'/transform/std2abi0InverseWarp.nii.gz'
 
 
 #Anat parameters 
+make_template=true  #use previously made study-specific anatomical template
 anat_script='anat_norm.sh'
-anat_base='*_T2w.nii'
+anat_base='*_T2w.nii.gz'
 anat_base_mask='*_T2w_mask.nii.gz'
 thr=4 
 anat2std_lin='anat/reg/anat2std0GenericAffine.mat'
@@ -28,23 +29,28 @@ anat2temp_inv='reg/abi2anat_inv.nii.gz'
 
 #FMRI paramters
 func_script='func_norm.sh'
-func_script2='func_glm.sh'
-func_base='*_task-opto_acq-EPI*.nii'
+func_script2='func_rs.sh'
+func_base='*_task-rest_acq-EPI*.nii.gz'
 task='/home/traaffneu/joagra/my_script/design_fsl10sON/design.mat'
 contrast='/home/traaffneu/joagra/my_script/design_fsl10sON/design.con'
 drICA='/home/traaffneu/joagra/my_templates/atlas/drICA'
 sba='/home/traaffneu/joagra/my_templates/atlas/SBA_roi'
-TR=1
-FWHM=0.45
+TR=1.5
+FWHM=0.35
 fbot=0.01 
-ftop=9999
+ftop=0.25
 
-#DWI parameters
-dwi_script='dwi_norm.sh'
-dwi_base='*_dwi.nii*'
-b0=5 
+#DWI parameters  !!! DWI not yet implementd
+#dwi_script='dwi_norm.sh'
+#dwi_base='*_dwi.nii.gz'
+#b0=5 
 
-
+if [ "make_template"==true ]; then
+mkdir -p $bids_template'/data'
+mkdir -p $bids_template'/script'
+cp $script_dir'/anat_template.sh'
+chmod +x $bids_template'/script/anat_template.sh'
+fi
 
 cd $bids_original
 
@@ -96,6 +102,10 @@ echo "anat2std_nlin="$outdir$anat2std_nlin >> $outdir/script/param.txt
 echo "anat2std_nlin_inv="$outdir$anat2std_nlin_inv >> $outdir/script/param.txt
 echo "anat2temp="$anat2temp >> $outdir/script/param.txt
 echo "anat2temp_inv="$anat2temp_inv >> $outdir/script/param.txt
+  if [ "make_template"==true ]; then
+  cp $anat $bids_template'/data/'$subject$session'.nii.gz'
+  fi
+
 else
 echo "No anatomical scan found for "$subject" and session "$session
 break
@@ -111,15 +121,15 @@ fi
 
 
 #prepare options for DWI scans
-dwi=$(ls ${PWD}/dwi/$dwi_base 2>/dev/null)
-if [ "$dwi" ]; then 
-echo "dwi=("$dwi")" >> $outdir/script/param.txt 
-echo "b0="${b0} >> $outdir/script/param.txt 
-cp $script_dir'/'$dwi_script $outdir/script/
-echo $outdir/script/$dwi_script >> $outdir/script/run.sh
+#dwi=$(ls ${PWD}/dwi/$dwi_base 2>/dev/null)
+#if [ "$dwi" ]; then 
+#echo "dwi=("$dwi")" >> $outdir/script/param.txt 
+#echo "b0="${b0} >> $outdir/script/param.txt 
+#cp $script_dir'/'$dwi_script $outdir/script/
+#echo $outdir/script/$dwi_script >> $outdir/script/run.sh
 #else
 #echo "No DWI scan found for "$subject" and session "$session
-fi
+#fi
 
 
 #prepare options for FUNC scans
@@ -149,11 +159,7 @@ chmod +x $outdir/script/run.sh
 chmod +x $outdir/script/run2.sh
 
 cd $outdir
-qsub -N $subject -l 'procs=1,mem=4gb,walltime=01:00:00' ${PWD}/script/run.sh
-#qsub -N $subject -l 'procs=1,mem=4gb,walltime=00:30:00' $outdir/script/run2.sh
-
-
-
+#qsub -N $subject -l 'procs=1,mem=4gb,walltime=01:00:00' ${PWD}/script/run.sh
 
 
 cd $bids_original'/'$subject
@@ -162,3 +168,8 @@ done
 cd $bids_original
 done
 
+
+if [ "make_template"==true ]; then
+cd $bids_template
+qsub 'procs=1,mem=10gb,walltime=02:00:00' ${PWD}/script/anat_template.sh
+fi
