@@ -1,5 +1,5 @@
 bids_base='/project/4180000.18/Rest_AD1'
-bids_original=$bids_base'/bids'
+bids_original=$bids_base'/BIDS'
 bids_preprocessing=$bids_base'/preprocessing'
 script_dir=$bids_base'/script/MouseMRIPrep/prep'
 bids_template=$bids_base'/anat_template'
@@ -103,7 +103,7 @@ echo "anat2std_nlin_inv="$outdir$anat2std_nlin_inv >> $outdir/script/param.txt
 echo "anat2temp="$anat2temp >> $outdir/script/param.txt
 echo "anat2temp_inv="$anat2temp_inv >> $outdir/script/param.txt
   if [ "make_template"==true ]; then
-  cp $anat $bids_template'/data/'$subject$session'.nii.gz'
+  cp $anat $bids_template'/data/'${subject%/}${session%/}'.nii.gz'
   fi
 
 else
