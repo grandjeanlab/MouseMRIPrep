@@ -1,4 +1,38 @@
-cd data
+bids_base='/project/4180000.18/Rest_AD1'
+bids_original=$bids_base'/BIDS'
+bids_template=$bids_base'/anat_template'
+
+template='/home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um.nii'
+template_brain='/home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um_skullstripped.nii'
+template_mask='/home/traaffneu/joagra/my_templates/mask_100um.nii'
+
+anat_base='*_T2w.nii.gz'
+
+mkdir -p $bids_template'/data'
+mkdir -p $bids_template'/script'
+
+cd $bids_original
+
+ls -d */ | while read subject
+do 
+cd $subject
+ls -d */ | while read session
+do 
+cd $session
+echo "now doing subject "$subject" and session "$session
+
+anat=$(ls ${PWD}/anat/$anat_base 2>/dev/null)
+if [ "$anat" ]; then 
+anat=${anat[0]}
+
+cp $anat $bids_template'/data/'${subject%/}${session%/}'.nii.gz'
+
+done
+done
+
+
+
+cd $bids_template'/data'
 
 jobIDs=""
 count=""
