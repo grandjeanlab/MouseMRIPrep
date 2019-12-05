@@ -89,7 +89,7 @@ antsApplyTransforms -i template.nii.gz -r /home/traaffneu/joagra/my_templates/MR
 
 antsApplyTransforms -i template_mask.nii.gz -r /home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um.nii -t transform/std2abi0GenericAffine.mat -o template_mask_lin.nii.gz -v -n NearestNeighbor
 
-antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output transform/std2abi --transform SyN[0.1,3,0] --metric CC[/home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um.nii,template_lin.nii.gz,1,4] --convergence [100x70x50x20,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [/home/traaffneu/joagra/my_templates/mask_100um.nii,template_mask_lin.nii.gz]
+antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output transform/std2abi --transform SyN[0.1,3,0] --metric CC[/home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um.nii,template_lin.nii.gz,1,4] --convergence [100x70x50x20,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [/home/traaffneu/joagra/my_templates/mask_100um.nii,template_mask_lin.nii.gz] | qsub -l 'procs=1,mem=10gb,walltime=02:00:00'
 
 antsApplyTransforms -i template.nii.gz -r /home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um.nii -t transform/std2abi0GenericAffine.mat -t transform/std2abi0Warp.nii.gz -o template_nlin.nii.gz -v 
 
