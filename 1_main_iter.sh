@@ -16,7 +16,6 @@ standard2ABInlin_inv=$bids_template'/transform/std2abi0InverseWarp.nii.gz'
 
 
 #Anat parameters 
-make_template=true  #use previously made study-specific anatomical template
 anat_script='anat_norm.sh'
 anat_base='*_T2w.nii.gz'
 anat_base_mask='*_T2w_mask.nii.gz'
@@ -45,12 +44,6 @@ ftop=0.25
 #dwi_base='*_dwi.nii.gz'
 #b0=5 
 
-if [ "make_template"==true ]; then
-mkdir -p $bids_template'/data'
-mkdir -p $bids_template'/script'
-cp $script_dir'/anat_template.sh' $bids_template'/script/anat_template.sh'
-chmod +x $bids_template'/script/anat_template.sh'
-fi
 
 cd $bids_original
 
@@ -102,9 +95,6 @@ echo "anat2std_nlin="$outdir$anat2std_nlin >> $outdir/script/param.txt
 echo "anat2std_nlin_inv="$outdir$anat2std_nlin_inv >> $outdir/script/param.txt
 echo "anat2temp="$anat2temp >> $outdir/script/param.txt
 echo "anat2temp_inv="$anat2temp_inv >> $outdir/script/param.txt
-  if [ "make_template"==true ]; then
-  cp $anat $bids_template'/data/'${subject%/}${session%/}'.nii.gz'
-  fi
 
 else
 echo "No anatomical scan found for "$subject" and session "$session
@@ -159,7 +149,7 @@ chmod +x $outdir/script/run.sh
 chmod +x $outdir/script/run2.sh
 
 cd $outdir
-#qsub -N $subject -l 'procs=1,mem=4gb,walltime=01:00:00' ${PWD}/script/run.sh
+qsub -N $subject -l 'procs=1,mem=4gb,walltime=01:00:00' ${PWD}/script/run.sh
 
 
 cd $bids_original'/'$subject
@@ -169,7 +159,4 @@ cd $bids_original
 done
 
 
-if [ "make_template"==true ]; then
-cd $bids_template
-qsub 'procs=1,mem=10gb,walltime=02:00:00' ${PWD}/script/anat_template.sh
-fi
+
