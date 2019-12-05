@@ -63,9 +63,13 @@ fi
 
 
 
-buildtemplateparallel_short.sh -d 3 -n 0 -c 1 -j 10 -m 24x16x8 -r 1 -o 00 *_N4.nii.gz 
+buildtemplateparallel_short.sh -d 3 -n 0 -c 1 -j 10 -t RA -i 1 -z ${template} -o 00 *_N4.nii.gz 
+mv 00template.nii.gz init_template.nii.gz
+rm -r 00*
 
-cp 00template.nii.gz ../template.nii.gz
+buildtemplateparallel_short.sh -d 3 -n 0 -c 1 -j 10 -m 24x16x8 -z init_template.nii.gz -o 01 *_N4.nii.gz 
+
+cp 01template.nii.gz ../template.nii.gz
 
 cd ..
 
@@ -90,3 +94,8 @@ antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output transform/std2a
 antsApplyTransforms -i template.nii.gz -r /home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um.nii -t transform/std2abi0GenericAffine.mat -t transform/std2abi0Warp.nii.gz -o template_nlin.nii.gz -v 
 
 antsApplyTransforms -i template_mask.nii.gz -r /home/traaffneu/joagra/my_templates/MRI_exvivo_template_100um.nii -t transform/std2abi0GenericAffine.mat -t transform/std2abi0Warp.nii.gz -o template_nlin_mask.nii.gz -v -n NearestNeighbor
+
+
+slicer template_nlin.nii.gz ${template} -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png highres2standard1.png ; slicer ${template} template_nlin.nii.gz -s 2 -x 0.35 sla.png -x 0.45 slb.png -x 0.55 slc.png -x 0.65 sld.png -y 0.35 sle.png -y 0.45 slf.png -y 0.55 slg.png -y 0.65 slh.png -z 0.35 sli.png -z 0.45 slj.png -z 0.55 slk.png -z 0.65 sll.png ; pngappend sla.png + slb.png + slc.png + sld.png + sle.png + slf.png + slg.png + slh.png + sli.png + slj.png + slk.png + sll.png highres2standard2.png ; pngappend highres2standard1.png - highres2standard2.png anat2standard.png; rm -f sl?.png highres2standard2.png
+
+rm highres2standard1.png
