@@ -78,7 +78,7 @@ echo "standard="${standard} >> $outdir/script/param.txt
 echo "standard_mask="${standard_mask} >> $outdir/script/param.txt
 echo "standard2ABIlin="${standard2ABIlin} >> $outdir/script/param.txt
 echo "standard2ABInlin="${standard2ABInlin} >> $outdir/script/param.txt
-echo "standard2ABInlin_inverse="${standard2ABInlin_inverse} >> $outdir/script/param.txt
+echo "standard2ABInlin_inverse="${standard2ABInlin_inv} >> $outdir/script/param.txt
 
 #set subject and session name
 echo "subject="${subject%/} >> $outdir/script/param.txt
