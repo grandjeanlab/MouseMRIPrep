@@ -64,7 +64,7 @@ antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat -
 
 ComposeMultiTransform 3 reg/func2anat.nii.gz -R ${anat_N4} reg/func2anat0Warp.nii.gz reg/func2anat0GenericAffine.mat
 ComposeMultiTransform 3 reg/func2anat_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat0InverseWarp.nii.gz
-ComposeMultiTransform 3 reg/epi2temp_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat0nverseWarp.nii.gz -R ${anat_N4} ${anat2temp_inv}
+ComposeMultiTransform 3 reg/epi2temp_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat0InverseWarp.nii.gz -R ${anat_N4} ${anat2temp_inv}
 
 antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${anat_N4} -t reg/func2anat.nii.gz -o reg/func2anatdeformed.nii.gz
 
