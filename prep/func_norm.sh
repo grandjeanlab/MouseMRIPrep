@@ -59,7 +59,7 @@ antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat -
 antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${anat_N4} -t reg/func2anat0GenericAffine.mat -o reg/func2anat_lin_deformed.nii.gz
 antsApplyTransforms -i mask.nii.gz -r ${anat_N4} -t reg/func2anat0GenericAffine.mat -o reg/mask_lin.nii.gz
 
-antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --transform SyN[0.1,3,0] --metric CC[${anat_N4},reg/func2anat_lin_deformed.nii.gz,1,4] --convergence [8x4x2x2,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${anat_mask},reg/mask_lin.nii.gz]
+antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --transform SyN[0.1,3,0] --metric CC[${anat_N4},reg/func2anat_lin_deformed.nii.gz,1,4] --convergence [20x10x5x2,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${anat_mask},reg/mask_lin.nii.gz]
 
 
 ComposeMultiTransform 3 reg/func2anat.nii.gz -R ${anat_N4} reg/func2anat0Warp.nii.gz reg/func2anat0GenericAffine.mat
