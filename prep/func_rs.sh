@@ -14,14 +14,14 @@ func_noext="$(remove_ext $func_base)"
 
 cd func/$func_noext
 
-WarpTimeSeriesImageMultiTransform 4 filtered_func_data_clean.nii.gz filtered_func_data_clean_reg.nii.gz -R $template ${anat2temp} reg/func2anat1Warp.nii.gz reg/func2anat0GenericAffine.mat
+WarpTimeSeriesImageMultiTransform 4 filtered_func_data_clean.nii.gz filtered_func_data_clean_reg.nii.gz -R $template ${anat2temp} reg/func2anat0Warp.nii.gz reg/func2anat0GenericAffine.mat
 
 mkdir -p NA 
 fslmeants -i filtered_func_data_clean_reg.nii.gz -o NA/${func_noext}'_ts' -m ${template_mask} --label=${template_atlas}
 
 mkdir -p ReHo
 3dReHo -inset filtered_func_data_clean.nii.gz -prefix ReHo/${func_noext}'_reho.nii.gz' -mask mask_dil.nii.gz
-WarpTimeSeriesImageMultiTransform 4 ReHo/${func_noext}'_reho.nii.gz' ReHo/${func_noext}'_reho_reg.nii.gz' -R $template ${anat2temp} reg/func2anat1Warp.nii.gz reg/func2anat0GenericAffine.mat
+WarpTimeSeriesImageMultiTransform 4 ReHo/${func_noext}'_reho.nii.gz' ReHo/${func_noext}'_reho_reg.nii.gz' -R $template ${anat2temp} reg/func2anat0Warp.nii.gz reg/func2anat0GenericAffine.mat
 
 mkdir -p drICA
 ls $drICA | while read ica
