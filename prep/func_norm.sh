@@ -52,21 +52,25 @@ mkdir -p reg
 cp $root_dir'/anat/reg/'* reg/
 cp $anat_N4 reg/highres.nii.gz
 
-antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --initial-moving-transform [${anat_N4},example_func_N4_dn.nii.gz,1] --transform Rigid[0.1] --metric MI[/${anat_N4},example_func_N4_dn.nii.gz,1,32,Regular,0.25] --convergence [100x50x25x10,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox --transform SyN[0.1,3,0] --metric CC[${anat_N4},example_func_N4_dn.nii.gz,1,4] --convergence [8x4x2x2,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${anat_mask},mask.nii.gz]
+#antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --initial-moving-transform [${anat_N4},example_func_N4_dn.nii.gz,1] --transform Rigid[0.1] --metric MI[/${anat_N4},example_func_N4_dn.nii.gz,1,32,Regular,0.25] --convergence [100x50x25x10,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox --transform SyN[0.1,3,0] --metric CC[${anat_N4},example_func_N4_dn.nii.gz,1,4] --convergence [8x4x2x2,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${anat_mask},mask.nii.gz]
 
-
-
-ComposeMultiTransform 3 reg/func2anat.nii.gz -R ${anat_N4} reg/func2anat1Warp.nii.gz reg/func2anat0GenericAffine.mat
-ComposeMultiTransform 3 reg/func2anat_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat1InverseWarp.nii.gz
-ComposeMultiTransform 3 reg/epi2temp_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat1InverseWarp.nii.gz -R ${anat_N4} ${anat2temp_inv}
+antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --initial-moving-transform [${anat_N4},example_func_N4_dn.nii.gz,1] --transform Rigid[0.1] --metric MI[${anat_N4},example_func_N4_dn.nii.gz,1,32,Regular,0.25] --convergence [100x50x25x10,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox 
 
 antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${anat_N4} -t reg/func2anat0GenericAffine.mat -o reg/func2anat_lin_deformed.nii.gz
+antsApplyTransforms -i mask.nii.gz -r ${anat_N4} -t reg/func2anat0GenericAffine.mat -o reg/mask_lin.nii.gz
+
+antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --transform SyN[0.1,3,0] --metric CC[${anat_N4},reg/func2anat_lin_deformed.nii.gz,1,4] --convergence [8x4x2x2,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${anat_mask},reg/mask_lin.nii.gz]
+
+
+ComposeMultiTransform 3 reg/func2anat.nii.gz -R ${anat_N4} reg/func2anat0Warp.nii.gz reg/func2anat0GenericAffine.mat
+ComposeMultiTransform 3 reg/func2anat_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat0InverseWarp.nii.gz
+ComposeMultiTransform 3 reg/epi2temp_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat10nverseWarp.nii.gz -R ${anat_N4} ${anat2temp_inv}
 
 antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${anat_N4} -t reg/func2anat.nii.gz -o reg/func2anatdeformed.nii.gz
 
 
 #EPI2template transform
-antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${template} -t ${anat2temp} -t reg/func2anat1Warp.nii.gz -t reg/func2anat0GenericAffine.mat -o example_func_reg.nii.gz 
+antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${template} -t ${anat2temp} -t reg/func2anat0Warp.nii.gz -t reg/func2anat0GenericAffine.mat -o example_func_reg.nii.gz 
 #template2EPI transform
 antsApplyTransforms -i ${template} -r example_func_N4_dn.nii.gz -t ${anat2temp_inv} -o reg/template2EPI.nii.gz
 
