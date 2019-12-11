@@ -64,7 +64,7 @@ antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat -
 
 ComposeMultiTransform 3 reg/func2anat.nii.gz -R ${anat_N4} reg/func2anat0Warp.nii.gz reg/func2anat0GenericAffine.mat
 ComposeMultiTransform 3 reg/func2anat_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat0InverseWarp.nii.gz
-ComposeMultiTransform 3 reg/epi2temp_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat0InverseWarp.nii.gz -R ${anat_N4} ${anat2temp_inv}
+#ComposeMultiTransform 3 reg/epi2temp_inv.nii.gz -R example_func_N4_dn.nii.gz -i reg/func2anat0GenericAffine.mat reg/func2anat0InverseWarp.nii.gz -R ${anat_N4} ${anat2temp_inv}
 
 antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${anat_N4} -t reg/func2anat.nii.gz -o reg/func2anatdeformed.nii.gz
 
@@ -72,8 +72,10 @@ antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${anat_N4} -t reg/func2anat.
 #EPI2template transform
 antsApplyTransforms -i example_func_N4_dn.nii.gz -r ${template} -t ${anat2temp} -t reg/func2anat0Warp.nii.gz -t reg/func2anat0GenericAffine.mat -o example_func_reg.nii.gz 
 #template2EPI transform
-antsApplyTransforms -i ${template} -r example_func_N4_dn.nii.gz -t ${anat2temp_inv} -o reg/template2EPI.nii.gz
-
+#antsApplyTransforms -i ${template} -r example_func_N4_dn.nii.gz -t ${anat2temp_inv} -o reg/template2EPI.nii.gz
+antsApplyTransforms -i ${template} -r $anat_N4 -t ${anat2temp_inv} -o temp2anat.nii.gz
+antsApplyTransforms -i temp2anat.nii.gz -r example_func_N4_dn.nii.gz -t reg/func2anat_inv.nii.gz -o reg/template2EPI.nii.gz
+rm temp2anat.nii.gz
 
 
 3dBandpass -mask mask_dil.nii.gz -prefix prefiltered_func_data_tempfilt.nii.gz $fbot $ftop mc/prefiltered_func_data_mcf.nii.gz 
