@@ -50,7 +50,7 @@ fslmaths example_func_N4_dn.nii.gz -mul mask_dil.nii.gz mean_func.nii.gz
 mkdir -p reg
 
 cp $root_dir'/anat/reg/'* reg/
-cp $anat_N4 reg/highres.nii.gz
+fslmaths $anat_N4 -mul $anat_mask reg/highres.nii.gz
 
 #antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/func2anat --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --initial-moving-transform [${anat_N4},example_func_N4_dn.nii.gz,1] --transform Rigid[0.1] --metric MI[/${anat_N4},example_func_N4_dn.nii.gz,1,32,Regular,0.25] --convergence [100x50x25x10,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox --transform SyN[0.1,3,0] --metric CC[${anat_N4},example_func_N4_dn.nii.gz,1,4] --convergence [8x4x2x2,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${anat_mask},mask.nii.gz]
 
