@@ -33,18 +33,23 @@ fi
 
 
 mkdir -p reg
-antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/anat2std --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --initial-moving-transform [${standard},$anat_noext'_N4_dn.nii.gz',1] --transform Rigid[0.1] --metric MI[${standard},$anat_noext'_N4_dn.nii.gz',1,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox --transform Affine[0.1] --metric MI[${standard},$anat_noext'_N4_dn.nii.gz',1,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox --transform SyN[0.1,3,0] --metric CC[${standard},$anat_noext'_N4_dn.nii.gz',1,4] --convergence [50x25x10x5,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${standard_mask},$anat_noext'_brain_mask.nii.gz']
+antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/anat2std --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --initial-moving-transform [${standard},$anat_noext'_N4_dn.nii.gz',1] --transform Rigid[0.1] --metric MI[${standard},$anat_noext'_N4_dn.nii.gz',1,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox --transform Affine[0.1] --metric MI[${standard},$anat_noext'_N4_dn.nii.gz',1,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox
+
+antsApplyTransforms -i $anat_noext'_N4_dn.nii.gz' -r ${standard} -t reg/anat2std0GenericAffine.mat  -o $anat_noext'_lin.nii.gz'
+antsApplyTransforms -i $anat_noext'_brain_mask.nii.gz' -r ${standard} -t reg/anat2std0GenericAffine.mat  -o $anat_noext'_brain_mask_lin.nii.gz'
+
+antsRegistration --dimensionality 3 --float 0 -a 0 -v 1 --output reg/anat2std --interpolation Linear --winsorize-image-intensities [0.005,0.995] --use-histogram-matching 0 --transform SyN[0.1,3,0] --metric CC[${standard},$anat_noext'_lin.nii.gz',1,4] --convergence [50x25x10x5,1e-6,10] --shrink-factors 8x4x2x1 --smoothing-sigmas 3x2x1x0vox -x [${standard_mask},$anat_noext'_brain_mask_lin.nii.gz']
 
 #antsIntroduction_short.sh -d 3 -i $anat_noext"_brain.nii.gz" -o anat2template -r $template_brain_high -m 24x16x8
 #WarpTimeSeriesImageMultiTransform 4 $anat_noext'_N4.nii.gz' $anat_noext'_deformed.nii.gz' -R $standard reg/anat/reg/anat2std0GenericAffine.mat
 
-antsApplyTransforms -i $anat_noext'_N4_dn.nii.gz' -r ${standard} -t reg/anat2std0GenericAffine.mat -t reg/anat2std1Warp.nii.gz -o $anat_noext'_2std.nii.gz'
+antsApplyTransforms -i $anat_noext'_N4_dn.nii.gz' -r ${standard} -t reg/anat2std0GenericAffine.mat -t reg/anat2std0Warp.nii.gz -o $anat_noext'_2std.nii.gz'
 
 #antsApplyTransforms -i $anat_noext'_2std.nii.gz' -r ${template} -t $standard2ABIlin -t $standard2ABInlin -o $anat_noext'_2abi.nii.gz'
 
-ComposeMultiTransform 3 ${anat2temp} -R ${template} $standard2ABInlin $standard2ABIlin -R ${standard} reg/anat2std1Warp.nii.gz reg/anat2std0GenericAffine.mat
+ComposeMultiTransform 3 ${anat2temp} -R ${template} $standard2ABInlin $standard2ABIlin -R ${standard} reg/anat2std0Warp.nii.gz reg/anat2std0GenericAffine.mat
 
-ComposeMultiTransform 3 ${anat2temp_inv} -R ${standard} -i reg/anat2std0GenericAffine.mat reg/anat2std1InverseWarp.nii.gz  -R $anat_noext'_N4_dn.nii.gz' -i $standard2ABIlin $standard2ABInlin_inv  
+ComposeMultiTransform 3 ${anat2temp_inv} -R ${standard} -i reg/anat2std0GenericAffine.mat reg/anat2std0InverseWarp.nii.gz  -R $anat_noext'_N4_dn.nii.gz' -i $standard2ABIlin $standard2ABInlin_inv  
 
 antsApplyTransforms -i $anat_noext'_N4_dn.nii.gz' -r ${template} -t ${anat2temp} -o $anat_noext'_2abi.nii.gz'
 antsApplyTransforms -i ${template} -r $anat_noext'_N4_dn.nii.gz' -t ${anat2temp_inv} -o template2anat.nii.gz
