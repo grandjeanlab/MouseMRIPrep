@@ -49,9 +49,9 @@ rm tmp_ovl.nii.gz
 cd ..
 
 
-antsApplyTransforms -i glm/func_COPE.nii.gz -r ${template} -t ${anat2temp} -t reg/func2anat1Warp.nii.gz -t reg/func2anat0GenericAffine.mat -o ${func_noext}'_COPE_reg.nii.gz' 
+antsApplyTransforms -i glm/func_COPE.nii.gz -r ${template} -t ${anat2temp} -t reg/func2anat0Warp.nii.gz -t reg/func2anat0GenericAffine.mat -o ${func_noext}'_COPE_reg.nii.gz' 
 
-antsApplyTransforms -i glm/func_zstat.nii.gz -r ${template} -t ${anat2temp} -t reg/func2anat1Warp.nii.gz -t reg/func2anat0GenericAffine.mat -o ${func_noext}'_zstat_reg.nii.gz'
+antsApplyTransforms -i glm/func_zstat.nii.gz -r ${template} -t ${anat2temp} -t reg/func2anat0Warp.nii.gz -t reg/func2anat0GenericAffine.mat -o ${func_noext}'_zstat_reg.nii.gz'
 
 
 #WarpTimeSeriesImageMultiTransform 4 glm/func_COPE.nii.gz ${func_noext}'_COPE_reg.nii.gz' -R $template $anat2std_nlin $anat2std_lin reg/func2anatAffine.txt
